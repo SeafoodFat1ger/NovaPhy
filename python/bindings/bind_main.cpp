@@ -9,6 +9,7 @@ void bind_math(py::module_& m);
 void bind_core(py::module_& m);
 void bind_collision(py::module_& m);
 void bind_sim(py::module_& m);
+void bind_dynamics(py::module_& m);
 
 PYBIND11_MODULE(_core, m) {
     m.doc() = "NovaPhy: A 3D physics engine for embodied intelligence";
@@ -19,4 +20,5 @@ PYBIND11_MODULE(_core, m) {
     bind_core(m);
     bind_collision(m);
     bind_sim(m);
+    bind_dynamics(m);
 }

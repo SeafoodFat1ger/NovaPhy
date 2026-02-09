@@ -6,10 +6,13 @@ add_library(novaphy_core STATIC
     core/body.cpp
     core/shape.cpp
     core/model_builder.cpp
+    core/joint.cpp
     collision/broadphase.cpp
     collision/narrowphase.cpp
     dynamics/integrator.cpp
     dynamics/free_body_solver.cpp
+    dynamics/featherstone.cpp
+    dynamics/articulated_solver.cpp
     sim/state.cpp
     sim/world.cpp
 )

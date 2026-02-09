@@ -28,6 +28,16 @@ from novaphy._core import (
     SolverSettings,
     SimState,
     World,
+    # Articulated bodies
+    JointType,
+    Joint,
+    Articulation,
+    ArticulatedSolver,
+    # Featherstone algorithms
+    forward_kinematics,
+    inverse_dynamics,
+    mass_matrix_crba,
+    forward_dynamics,
 )
 
 __version__ = version()
@@ -55,4 +65,12 @@ __all__ = [
     "SolverSettings",
     "SimState",
     "World",
+    "JointType",
+    "Joint",
+    "Articulation",
+    "ArticulatedSolver",
+    "forward_kinematics",
+    "inverse_dynamics",
+    "mass_matrix_crba",
+    "forward_dynamics",
 ]

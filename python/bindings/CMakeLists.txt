@@ -6,6 +6,7 @@ pybind11_add_module(_core
     bind_core.cpp
     bind_collision.cpp
     bind_sim.cpp
+    bind_dynamics.cpp
 )
 
 target_link_libraries(_core PRIVATE
