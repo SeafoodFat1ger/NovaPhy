@@ -36,13 +36,14 @@ class BoxStackDemo(DemoApp):
                 np.array([0.0, y, 0.0], dtype=np.float32))
             body_idx = builder.add_body(body, t)
 
-            shape = novaphy.CollisionShape.make_box(half, body_idx)
+            shape = novaphy.CollisionShape.make_box(
+                half, body_idx, novaphy.Transform.identity(), 0.5, 0.0)
             builder.add_shape(shape)
 
         model = builder.build()
 
         settings = novaphy.SolverSettings()
-        settings.velocity_iterations = 15
+        settings.velocity_iterations = 30
         settings.warm_starting = True
 
         self.world = novaphy.World(model, settings)

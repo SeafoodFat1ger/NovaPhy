@@ -225,6 +225,9 @@ bool collide_box_box(const CollisionShape& a, const Transform& ta,
     }
 
     // 9 edge-edge axes (cross products)
+    // Prefer face axes when penetration is effectively tied, since stacked
+    // boxes are more stable with a face manifold than an edge-edge fallback.
+    constexpr float edge_axis_margin = 1e-4f;
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
             Vec3f axis = axes_a[i].cross(axes_b[j]);
@@ -240,7 +243,7 @@ bool collide_box_box(const CollisionShape& a, const Transform& ta,
             float s = axis.dot(d);
             float pen = (ra_proj + rb_proj) - std::abs(s);
             if (pen < 0) return false;
-            if (pen < min_pen) {
+            if (pen < min_pen - edge_axis_margin) {
                 min_pen = pen;
                 best_axis = axis;
                 if (s < 0) best_axis = -best_axis;
@@ -250,20 +253,23 @@ bool collide_box_box(const CollisionShape& a, const Transform& ta,
     }
 
     // Generate contact points
-    // Use a simplified approach: clip the incident face against the reference face
+    // Use a simplified reference/incident face approach.
+    // For face contacts we keep incident corners inside the reference box bounds,
+    // which yields up to 4 stable contacts for stacked boxes.
     if (best_axis_idx < 6) {
-        // Face-something contact: generate contact points at box corners
-        // Find which box is the reference (has the separating axis as a face normal)
+        // Face-something contact
         bool a_is_reference = (best_axis_idx < 3);
 
         const Vec3f& ref_half = a_is_reference ? ha : hb;
         const Vec3f& inc_half = a_is_reference ? hb : ha;
         const Transform& ref_xform = a_is_reference ? wa : wb;
         const Transform& inc_xform = a_is_reference ? wb : wa;
-        int ref_body = a_is_reference ? a.body_index : b.body_index;
-        int inc_body = a_is_reference ? b.body_index : a.body_index;
+        constexpr float inside_epsilon = 0.01f;
+        constexpr int max_face_contacts = 4;
+        float contact_pen = std::max(0.0f, min_pen);
+        int num_face_contacts = 0;
 
-        // Test incident box corners against reference
+        // Keep incident corners that project inside the reference box.
         for (int i = 0; i < 8; ++i) {
             Vec3f corner(
                 (i & 1) ? inc_half.x() : -inc_half.x(),
@@ -273,22 +279,25 @@ bool collide_box_box(const CollisionShape& a, const Transform& ta,
             Vec3f world_corner = inc_xform.transform_point(corner);
             Vec3f local_corner = ref_xform.inverse().transform_point(world_corner);
 
-            // Check if corner is inside reference box
-            if (std::abs(local_corner.x()) <= ref_half.x() + 0.01f &&
-                std::abs(local_corner.y()) <= ref_half.y() + 0.01f &&
-                std::abs(local_corner.z()) <= ref_half.z() + 0.01f) {
-                float pen = best_axis.dot(pa - world_corner) + min_pen;
-                if (pen < -0.01f) continue;
-
+            if (std::abs(local_corner.x()) <= ref_half.x() + inside_epsilon &&
+                std::abs(local_corner.y()) <= ref_half.y() + inside_epsilon &&
+                std::abs(local_corner.z()) <= ref_half.z() + inside_epsilon) {
                 ContactPoint cp;
                 cp.normal = best_axis;
-                cp.penetration = std::max(0.0f, pen);
-                cp.position = world_corner + best_axis * cp.penetration * 0.5f;
+                cp.penetration = contact_pen;
+                float offset = 0.5f * contact_pen;
+                if (a_is_reference) {
+                    cp.position = world_corner + best_axis * offset;
+                } else {
+                    cp.position = world_corner - best_axis * offset;
+                }
                 cp.body_a = a.body_index;
                 cp.body_b = b.body_index;
                 cp.friction = combine_friction(a.friction, b.friction);
                 cp.restitution = combine_restitution(a.restitution, b.restitution);
                 contacts.push_back(cp);
+                ++num_face_contacts;
+                if (num_face_contacts >= max_face_contacts) break;
             }
         }
 

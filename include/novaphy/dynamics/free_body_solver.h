@@ -10,7 +10,7 @@ namespace novaphy {
 
 /// Configuration for the Sequential Impulse solver
 struct SolverSettings {
-    int velocity_iterations = 20;
+    int velocity_iterations = 30;
     float baumgarte = 0.3f;     // position correction factor
     float slop = 0.005f;        // penetration slop (allowed before correction)
     bool warm_starting = true;

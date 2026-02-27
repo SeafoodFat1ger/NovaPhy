@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install:*)",
+      "Bash(pytest:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git remote:*)",
+      "WebSearch",
+      "WebFetch(domain:scikit-build-core.readthedocs.io)",
+      "Bash(gh run:*)",
+      "Bash(where gh:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(CMAKE_ARGS=\"-DCMAKE_TOOLCHAIN_FILE=F:/vcpkg/scripts/buildsystems/vcpkg.cmake\" pip install:*)",
+      "Bash(git reset:*)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(git branch:*)"
+    ]
+  }
+}

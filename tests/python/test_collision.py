@@ -125,6 +125,23 @@ def test_box_plane_collision():
         assert c.penetration > 0
 
 
+def test_box_box_face_contact_generates_manifold():
+    a = novaphy.CollisionShape.make_box(
+        np.array([0.5, 0.5, 0.5], dtype=np.float32), 0)
+    b = novaphy.CollisionShape.make_box(
+        np.array([0.5, 0.5, 0.5], dtype=np.float32), 1)
+
+    ta = novaphy.Transform.from_translation(np.array([0, 0.5, 0], dtype=np.float32))
+    tb = novaphy.Transform.from_translation(np.array([0, 1.49, 0], dtype=np.float32))
+
+    hit, contacts = novaphy.collide_shapes(a, ta, b, tb)
+    assert hit is True
+    assert len(contacts) == 4
+    for c in contacts:
+        assert c.penetration > 0.0
+        assert c.normal[1] > 0.9
+
+
 def test_body_from_box():
     body = novaphy.RigidBody.from_box(2.0, np.array([1, 1, 1], dtype=np.float32))
     assert abs(body.mass - 2.0) < 1e-6
