@@ -76,7 +76,8 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DNOVAPHY_WITH_IPC=ON \
             -DCMAKE_CUDA_COMPILER=$CUDA_ROOT/bin/nvcc \
-            -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+            -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake \
+            -Dpybind11_DIR=$(python -m pybind11 --cmakedir)
 
       - name: Build standalone CMake
         run: cmake --build build/standalone --config Release --parallel 4
