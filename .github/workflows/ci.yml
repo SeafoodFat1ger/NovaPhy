@@ -69,9 +69,19 @@ jobs:
       - uses: actions/checkout@v4
         # with:
         #   submodules: recursive
+      - name: Setup conda environment
+        run: |
+          if conda env list | grep -q "novaphy"; then
+            echo "Updating environment..."
+            conda env update -f environment.yml --prune
+          else
+            echo "Creating environment..."
+            conda env create -f environment.yml
+          fi
 
       - name: Configure standalone CMake with CUDA
         run: |
+          conda activate novaphy
           cmake -S . -B build/standalone \
             -DCMAKE_BUILD_TYPE=Release \
             -DNOVAPHY_WITH_IPC=ON \
@@ -84,16 +94,6 @@ jobs:
 
       - name: Run C++ tests
         run: ctest --test-dir build/standalone -C Release --output-on-failure
-
-      - name: Setup conda environment
-        run: |
-          if conda env list | grep -q "novaphy"; then
-            echo "Updating environment..."
-            conda env update -f environment.yml --prune
-          else
-            echo "Creating environment..."
-            conda env create -f environment.yml
-          fi
       
       - name: Build and install Python package
         run: |
